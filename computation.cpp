@@ -1,5 +1,8 @@
 #include "BlackScholes.h"
 #include <iostream>
+#include <functional>
+
+using namespace std;
 
 double bisection_method(BlackScholes &bs, double market_price)
 {
@@ -26,6 +29,25 @@ double bisection_method(BlackScholes &bs, double market_price)
     return c;
 }
 
+double trapezoidal_rule(function<double(double)> f)
+{
+    // bounds for large interval
+    double a_plus = pow(10, 6);
+    double a_minus = -a_plus;
+
+    int n = 1000000;
+    double h = (a_plus - a_minus) / n;
+    double sum = 0.5 * (f(a_plus) + f(a_minus));
+
+    for (int i = 1; i < n; i++)
+    {
+        double x = a_minus + i * h;
+        sum += f(x);
+    }
+
+    return h * sum;
+}
+
 int main()
 {
 
@@ -44,18 +66,33 @@ int main()
     // store the atm call and put iv
     // average the in the money ivs and average the out of the money ivs
 
-    BlackScholes bs{strike, spot, time, rate, payoff, div};
+    // BlackScholes bs{strike, spot, time, rate, payoff, div};
 
-    std::cout << bs(vol) << std::endl;
+    // std::cout << bs(vol) << std::endl;
 
-    double market = 3.43;
-    // using bisection method to find implied vol
-    double c = bisection_method(bs, market);
+    // double market = 3.43;
+    // // using bisection method to find implied vol
+    // double c = bisection_method(bs, market);
 
-    std::cout
-        << "Implied vol = " << c << std::endl;
-    std::cout << "With calculated IV call = " << bs(c) << std::endl;
-    std::cout << "Market call = " << market << std::endl;
+    // std::cout
+    //     << "Implied vol = " << c << std::endl;
+    // std::cout << "With calculated IV call = " << bs(c) << std::endl;
+    // std::cout << "Market call = " << market << std::endl;
+
+    // trapezoidal rule
+    auto real_valued_func = [](double x)
+    {
+        if (x == 0.0)
+        {
+            return 1.0;
+        }
+        else
+        {
+            return (sin(x) / x);
+        }
+    };
+
+    cout << "trapezoidal rule integral approx: " << trapezoidal_rule(real_valued_func) << endl;
 
     return 0;
 }
