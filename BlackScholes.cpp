@@ -1,7 +1,6 @@
 #include "BlackScholes.h"
 #include <numbers>
 #include <cmath>
-#include <iostream>
 
 // Constructor Implementation
 BlackScholes::BlackScholes(double strike, double spot, double time_to_maturity,
@@ -18,7 +17,7 @@ double BlackScholes::operator()(double vol)
     double d1 = norm_args[0];
     double d2 = norm_args[1];
 
-    auto norm_cdf = [](double x)
+    auto norm_cdf = [](double x) -> double
     {
         return (1.0 + std::erf(x / std::numbers::sqrt2)) / 2;
     };
@@ -48,4 +47,10 @@ std::array<double, 2> BlackScholes::compute_norm_args_(double vol)
     double d2 = d1 - denom;
 
     return {d1, d2}; // Explicitly constructing std::array
+}
+
+double BlackScholes::get_delta() const{
+
+    double d1 = norm_args[0];
+    return 0.0;
 }
