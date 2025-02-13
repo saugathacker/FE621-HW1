@@ -25,9 +25,10 @@ public:
     double getOptionsSize() const { return options.size(); };
 
     // Find and return a pointer to the OptionData that matches strike and type
-    OptionData *findOption(double strike, const std::string &optionType) const;
+    OptionData *findOption(double strike, const std::string &expiration, const std::string &optionType) const;
 
     void calculate_implied_vols_and_greeks();
+    void calculate_put_call_parity();
 
     double getSpotPrice() const { return spotPrice; };
     double getInterestRate() const { return interestRate; };

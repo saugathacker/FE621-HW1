@@ -13,17 +13,17 @@ void Ticker::addOptionData(std::unique_ptr<OptionData> option)
     options.push_back(std::move(option));
 }
 
-// Find an option based on strike price and option type
-OptionData *Ticker::findOption(double strike, const std::string &optionType) const
+// Find an option based on strike, expiration, and type
+OptionData *Ticker::findOption(double strike, const std::string &expiration, const std::string &optionType) const
 {
     for (const auto &option : options)
     {
-        if (option->strike == strike && option->optionType == optionType)
+        if (option->strike == strike && option->expiration == expiration && option->optionType == optionType)
         {
             return option.get(); // Return raw pointer (safe since unique_ptr manages memory)
         }
     }
-    return nullptr; // Return nullptr if not found
+    return nullptr; // Return nullptr if no matching option is found
 }
 
 void Ticker::calculate_implied_vols_and_greeks()
@@ -31,6 +31,33 @@ void Ticker::calculate_implied_vols_and_greeks()
     for (auto &option : options)
     {
         option->calculate_iv_and_greeks(spotPrice, interestRate); // Each option calculates its IV
+    }
+}
+
+void Ticker::calculate_put_call_parity()
+{
+    for (const auto &option : options)
+    {
+        // Find corresponding Call if current option is a Put
+        if (option->optionType == "Put")
+        {
+            OptionData *callOption = findOption(option->strike, option->expiration, "Call");
+            if (callOption)
+            {
+                double discount_factor = exp(-interestRate * option->timeToMaturity);
+                option->parity_price = callOption->lastPrice - spotPrice + (option->strike * discount_factor);
+            }
+        }
+        // Find corresponding Put if current option is a Call
+        else if (option->optionType == "Call")
+        {
+            OptionData *putOption = findOption(option->strike, option->expiration, "Put");
+            if (putOption)
+            {
+                double discount_factor = exp(-interestRate * option->timeToMaturity);
+                option->parity_price = putOption->lastPrice + spotPrice - (option->strike * discount_factor);
+            }
+        }
     }
 }
 
@@ -46,7 +73,7 @@ void Ticker::write_to_csv(const std::string &filename) const
     // **Write CSV Header**
     file << "Ticker,Expiration,TimeToMaturity,Strike,OptionType,LastPrice,"
          << "Bid,Ask,Volume,OpenInterest,ImpliedVolatility,BisectionIV,NewtonIV,"
-         << "Delta_bs,Gamma_bs,Vega_bs,Delta_fd,Gamma_fd,Vega_fd,InTheMoney\n";
+         << "Delta_bs,Gamma_bs,Vega_bs,Delta_fd,Gamma_fd,Vega_fd,Parity_price,InTheMoney\n";
 
     // **Write Option Data**
     for (const auto &option : options)
@@ -70,6 +97,7 @@ void Ticker::write_to_csv(const std::string &filename) const
              << option->delta_fd << ","
              << option->gamma_fd << ","
              << option->vega_fd << ","
+             << option->parity_price << ","
              << (option->inTheMoney ? "True" : "False") << "\n";
     }
 

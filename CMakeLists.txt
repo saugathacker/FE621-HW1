@@ -4,4 +4,4 @@ project(FE621HW1)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(main computaion.cpp BlackScholes.cpp Ticker.cpp OptionData.cpp util.cpp)
+add_executable(main computation.cpp BlackScholes.cpp Ticker.cpp OptionData.cpp util.cpp)

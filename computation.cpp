@@ -10,6 +10,73 @@
 
 using namespace std;
 
+void read_csv_into_ticker_object(std::string fileName, std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers)
+{
+    ifstream ifile(fileName, ios::in);
+    if (!ifile.is_open())
+    {
+        cout << "Error opening file for input!" << endl;
+        return;
+    }
+
+    string line_;
+
+    // getting rid of headers
+    getline(ifile, line_);
+
+    while (getline(ifile, line_))
+    {
+        stringstream ss(line_);
+        string temp;
+
+        string ticker, expiration, optionType;
+        double timeToMaturity, strike, lastPrice, bid, ask, volume, openInterest, impliedVolatility, spotPrice, interestRate;
+        bool inTheMoney;
+
+        std::getline(ss, temp, ','); // Ignore first empty column
+        std::getline(ss, ticker, ',');
+        std::getline(ss, expiration, ',');
+        std::getline(ss, temp, ',');
+        timeToMaturity = std::stod(temp);
+        std::getline(ss, temp, ',');
+        strike = std::stod(temp);
+        std::getline(ss, optionType, ',');
+        std::getline(ss, temp, ',');
+        lastPrice = temp.empty() ? 0.0 : std::stod(temp);
+        std::getline(ss, temp, ',');
+        bid = temp.empty() ? 0.0 : std::stod(temp);
+        std::getline(ss, temp, ',');
+        ask = temp.empty() ? 0.0 : std::stod(temp);
+        std::getline(ss, temp, ',');
+        volume = temp.empty() ? 0.0 : std::stod(temp);
+        std::getline(ss, temp, ',');
+        openInterest = temp.empty() ? 0.0 : std::stod(temp);
+        std::getline(ss, temp, ',');
+        impliedVolatility = temp.empty() ? 0.0 : std::stod(temp);
+        std::getline(ss, temp, ',');
+        inTheMoney = (temp == "True");
+        std::getline(ss, temp, ',');
+        spotPrice = std::stod(temp);
+        std::getline(ss, temp, ',');
+        interestRate = std::stod(temp);
+        interestRate = interestRate / 100;
+
+        if (tickers.find(ticker) == tickers.end())
+        {
+            tickers[ticker] = make_unique<Ticker>(ticker, spotPrice, interestRate);
+        }
+
+        // Create a new OptionData object
+        auto option = std::make_unique<OptionData>(expiration, timeToMaturity, strike, optionType,
+                                                   lastPrice, bid, ask, volume, openInterest, impliedVolatility, inTheMoney);
+
+        // Add option data to the existing Ticker object
+        tickers[ticker]->addOptionData(std::move(option));
+    }
+
+    ifile.close();
+}
+
 int main()
 {
 
@@ -23,81 +90,23 @@ int main()
     // double iv = bisection_method(bs, market, true);
 
     // cout << "Bisection test: " << iv << endl;
+    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data1; // Map to store unique tickers
 
-    // ifstream ifile("options_data2.csv", ios::in);
-    // if (!ifile.is_open())
-    // {
-    //     cout << "Error opening file for input!" << endl;
-    //     return 1;
-    // }
+    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2;
 
-    // std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers; // Map to store unique tickers
+    read_csv_into_ticker_object("options_data1.csv", tickers_data1);
 
-    // string line_;
-    // int counter = 0;
+    read_csv_into_ticker_object("options_data2.csv", tickers_data2);
 
-    // // getting rid of headers
-    // getline(ifile, line_);
-
-    // while (getline(ifile, line_))
-    // {
-    //     stringstream ss(line_);
-    //     string temp;
-
-    //     string ticker, expiration, optionType;
-    //     double timeToMaturity, strike, lastPrice, bid, ask, volume, openInterest, impliedVolatility, spotPrice, interestRate;
-    //     bool inTheMoney;
-
-    //     std::getline(ss, temp, ','); // Ignore first empty column
-    //     std::getline(ss, ticker, ',');
-    //     std::getline(ss, expiration, ',');
-    //     std::getline(ss, temp, ',');
-    //     timeToMaturity = std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     strike = std::stod(temp);
-    //     std::getline(ss, optionType, ',');
-    //     std::getline(ss, temp, ',');
-    //     lastPrice = temp.empty() ? 0.0 : std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     bid = temp.empty() ? 0.0 : std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     ask = temp.empty() ? 0.0 : std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     volume = temp.empty() ? 0.0 : std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     openInterest = temp.empty() ? 0.0 : std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     impliedVolatility = temp.empty() ? 0.0 : std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     inTheMoney = (temp == "True");
-    //     std::getline(ss, temp, ',');
-    //     spotPrice = std::stod(temp);
-    //     std::getline(ss, temp, ',');
-    //     interestRate = std::stod(temp);
-    //     interestRate = interestRate / 100;
-
-    //     if (tickers.find(ticker) == tickers.end())
-    //     {
-    //         tickers[ticker] = make_unique<Ticker>(ticker, spotPrice, interestRate);
-    //     }
-
-    //     // Create a new OptionData object
-    //     auto option = std::make_unique<OptionData>(expiration, timeToMaturity, strike, optionType,
-    //                                                lastPrice, bid, ask, volume, openInterest, impliedVolatility, inTheMoney);
-
-    //     // Add option data to the existing Ticker object
-    //     tickers[ticker]->addOptionData(std::move(option));
-    // }
-
-    // ifile.close();
-
-    // for (const auto &[ticker, tickerObj] : tickers)
-    // {
-    //     cout << "ticker name: " << tickerObj->getTickerName() << " no of options: " << tickerObj->getOptionsSize() << endl;
-    // }
-
-    // tickers["SPY"]->calculate_implied_vols_and_greeks();
-    // tickers["SPY"]->write_to_csv("output.csv");
+    // calculate implied vol, greeks, put-call parity for data1 and writing it into csv file
+    for (const auto &[ticker, tickerObj] : tickers_data1)
+    {
+        cout << "ticker name: " << tickerObj->getTickerName() << " no of options: " << tickerObj->getOptionsSize() << endl;
+        tickerObj->calculate_implied_vols_and_greeks();
+        tickerObj->calculate_put_call_parity();
+        string outputFileName = ticker + "_outputData1.csv";
+        tickerObj->write_to_csv(outputFileName);
+    }
 
     // trapezoidal rule
     auto real_valued_func = [](double x)
