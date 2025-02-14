@@ -80,62 +80,52 @@ void read_csv_into_ticker_object(std::string fileName, std::unordered_map<std::s
 int main()
 {
 
-    // // test bisection method
-    // BlackScholes bs(130, 130.694, 0.021918, 0.0423,
-    //                 PayoffType::Put);
-    // cout << "Option Price: " << bs(0.46) << endl;
-    // double market = 3.175;
-    // cout << "Market Price: " << market << endl;
+    // std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data1; // Map to store unique tickers
 
-    // double iv = bisection_method(bs, market, true);
+    // std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2;
 
-    // cout << "Bisection test: " << iv << endl;
-    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data1; // Map to store unique tickers
+    // read_csv_into_ticker_object("options_data1.csv", tickers_data1);
 
-    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2;
+    // read_csv_into_ticker_object("options_data2.csv", tickers_data2);
 
-    read_csv_into_ticker_object("options_data1.csv", tickers_data1);
+    // // calculate implied vol, greeks, put-call parity for data1 and writing it into csv file
+    // for (const auto &[ticker, tickerObj] : tickers_data1)
+    // {
+    //     cout << "ticker name: " << tickerObj->getTickerName() << " no of options: " << tickerObj->getOptionsSize() << endl;
+    //     tickerObj->calculate_implied_vols_and_greeks();
+    //     tickerObj->calculate_put_call_parity();
+    //     string outputFileName = ticker + "_outputData1.csv";
+    //     tickerObj->write_to_csv(outputFileName);
 
-    read_csv_into_ticker_object("options_data2.csv", tickers_data2);
+    //     tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
+    //     outputFileName = ticker + "_outputData2.csv";
+    //     tickers_data2[ticker]->write_to_csv(outputFileName);
+    // }
 
-    // calculate implied vol, greeks, put-call parity for data1 and writing it into csv file
-    for (const auto &[ticker, tickerObj] : tickers_data1)
-    {
-        cout << "ticker name: " << tickerObj->getTickerName() << " no of options: " << tickerObj->getOptionsSize() << endl;
-        tickerObj->calculate_implied_vols_and_greeks();
-        tickerObj->calculate_put_call_parity();
-        string outputFileName = ticker + "_outputData1.csv";
-        tickerObj->write_to_csv(outputFileName);
+    // // part iii
+    // auto real_valued_func = [](double x)
+    // {
+    //     if (x == 0.0)
+    //     {
+    //         return 1.0;
+    //     }
+    //     else
+    //     {
+    //         return (sin(x) / x);
+    //     }
+    // };
 
-        tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
-        outputFileName = ticker + "_outputData2.csv";
-        tickers_data2[ticker]->write_to_csv(outputFileName);
-    }
+    // // bounds for large interval
+    // double a_plus = pow(10, 6);
+    // double a_minus = -a_plus;
+    // int N = 1000000;
 
-    // part iii
-    auto real_valued_func = [](double x)
-    {
-        if (x == 0.0)
-        {
-            return 1.0;
-        }
-        else
-        {
-            return (sin(x) / x);
-        }
-    };
-
-    // bounds for large interval
-    double a_plus = pow(10, 6);
-    double a_minus = -a_plus;
-    int N = 1000000;
-
-    cout << "trapezoidal rule integral approx: " << trapezoidal_rule(real_valued_func, a_minus, a_plus, N) << endl;
-    cout << "truncation error of trapezoidal rule: " << truncation_error("trapezoidal", real_valued_func, a_minus, a_plus, N) << endl;
-    cout << "convergence test took " << convergence_iterations("trapezoidal", real_valued_func, a_minus, a_plus) << " iterations" << endl;
-    cout << "simpsons rule integral approx: " << simpsons_rule(real_valued_func, a_minus, a_plus, N) << endl;
-    cout << "truncation error of simpsons rule: " << truncation_error("simpsons", real_valued_func, a_minus, a_plus, N) << endl;
-    cout << "convergence test took " << convergence_iterations("simpsons", real_valued_func, a_minus, a_plus) << " iterations" << endl;
+    // cout << "trapezoidal rule integral approx: " << trapezoidal_rule(real_valued_func, a_minus, a_plus, N) << endl;
+    // cout << "truncation error of trapezoidal rule: " << truncation_error("trapezoidal", real_valued_func, a_minus, a_plus, N) << endl;
+    // cout << "convergence test took " << convergence_iterations("trapezoidal", real_valued_func, a_minus, a_plus) << " iterations" << endl;
+    // cout << "simpsons rule integral approx: " << simpsons_rule(real_valued_func, a_minus, a_plus, N) << endl;
+    // cout << "truncation error of simpsons rule: " << truncation_error("simpsons", real_valued_func, a_minus, a_plus, N) << endl;
+    // cout << "convergence test took " << convergence_iterations("simpsons", real_valued_func, a_minus, a_plus) << " iterations" << endl;
 
     // part 4
     auto f1 = [](double x, double y)
@@ -149,6 +139,36 @@ int main()
     };
 
     // call trapezoidal function for two integrals
+    double f1_value = 2.25;
+    double f2_value = (exp(3) - 1) * (exp(1) - 1);
+
+    int dxdy_list[] = {1, 10, 50, 100, 1000}; // Correct array declaration
+
+    // Print header
+    std::cout << std::setw(10) << "dxdy"
+              << std::setw(20) << "F1 Value"
+              << std::setw(20) << "F1 Approx"
+              << std::setw(20) << "F1 Error"
+              << std::setw(20) << "F2 Value"
+              << std::setw(20) << "F2 Approx"
+              << std::setw(20) << "F2 Error" << std::endl;
+    std::cout << std::string(130, '-') << std::endl; // Print separator
+
+    for (auto dxdy : dxdy_list)
+    {
+        double f1_integral = double_trapezoidal_rule(f1, 0, 1, dxdy, 0, 3, dxdy);
+        double f2_integral = double_trapezoidal_rule(f2, 0, 1, dxdy, 0, 3, dxdy);
+
+        // Print formatted results
+        std::cout << std::setw(10) << dxdy
+                  << std::setw(20) << std::fixed << std::setprecision(6) << f1_value
+                  << std::setw(20) << std::fixed << std::setprecision(6) << f1_integral
+                  << std::setw(20) << std::fixed << std::setprecision(6) << std::abs(f1_integral - f1_value)
+                  << std::setw(20) << std::fixed << std::setprecision(6) << f2_value
+                  << std::setw(20) << std::fixed << std::setprecision(6) << f2_integral
+                  << std::setw(20) << std::fixed << std::setprecision(6) << std::abs(f2_integral - f2_value)
+                  << std::endl;
+    }
 
     return 0;
 }

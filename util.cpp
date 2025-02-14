@@ -224,3 +224,46 @@ int convergence_iterations(std::string method,
         prev_result = current_result;
     }
 }
+
+double double_trapezoidal_rule(std::function<double(double, double)> f,
+                               double a, double b, int nx,
+                               double c, double d, int ny)
+{
+    // Compute step sizes
+    double dx = (b - a) / nx;
+    double dy = (d - c) / ny;
+
+    // Initialize integral value
+    double integral = 0.0;
+
+    // Iterate over grid points
+    for (int i = 0; i < nx; ++i)
+    {
+        double x_i = a + i * dx;
+        double x_ip1 = a + (i + 1) * dx;
+
+        for (int j = 0; j < ny; ++j)
+        {
+            double y_j = c + j * dy;
+            double y_jp1 = c + (j + 1) * dy;
+
+            // Compute function values at required points
+            double f_xiyj = f(x_i, y_j);
+            double f_xiyjp1 = f(x_i, y_jp1);
+            double f_xip1yj = f(x_ip1, y_j);
+            double f_xip1yjp1 = f(x_ip1, y_jp1);
+
+            double f_xmid_yj = f((x_i + x_ip1) / 2.0, y_j);
+            double f_xmid_yjp1 = f((x_i + x_ip1) / 2.0, y_jp1);
+            double f_xi_ymid = f(x_i, (y_j + y_jp1) / 2.0);
+            double f_xip1_ymid = f(x_ip1, (y_j + y_jp1) / 2.0);
+
+            double f_xmid_ymid = f((x_i + x_ip1) / 2.0, (y_j + y_jp1) / 2.0);
+
+            // Apply the formula
+            integral += (dx * dy) / 16.0 * (f_xiyj + f_xiyjp1 + f_xip1yj + f_xip1yjp1 + 2.0 * (f_xmid_yj + f_xmid_yjp1 + f_xi_ymid + f_xip1_ymid) + 4.0 * f_xmid_ymid);
+        }
+    }
+
+    return integral;
+}

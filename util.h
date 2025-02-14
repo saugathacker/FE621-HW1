@@ -34,4 +34,8 @@ double truncation_error(std::string method,
 int convergence_iterations(std::string method,
                            std::function<double(double)> f, double a, double b, double epsilon = 1e-4);
 
+double double_trapezoidal_rule(std::function<double(double, double)> f,
+                               double a, double b, int dx,
+                               double c, double d, int dy);
+
 #endif // UTIL_H
