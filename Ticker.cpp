@@ -61,6 +61,46 @@ void Ticker::calculate_put_call_parity()
     }
 }
 
+void Ticker::calculate_bs_price_from_other_ticker(const std::unique_ptr<Ticker> &tickerData1)
+{
+    size_t i = 0, j = 0;
+
+    while (i < options.size() && j < tickerData1->options.size())
+    {
+        OptionData *myOption = options[i].get();
+        OptionData *otherOption = tickerData1->options[j].get();
+
+        // If options match by strike, expiration, and type
+        if (myOption->strike == otherOption->strike &&
+            myOption->expiration == otherOption->expiration &&
+            myOption->optionType == otherOption->optionType)
+        {
+            // Use Black-Scholes model with other ticker's IV
+            if (otherOption->bisectionImpliedVol > 0)
+            {
+                myOption->calculate_bs_price(spotPrice, interestRate, otherOption->bisectionImpliedVol);
+            }
+
+            // Move both indices forward
+            i++;
+            j++;
+        }
+        else
+        {
+            // If not matched, find the corresponding option in `tickerData1`
+            otherOption = tickerData1->findOption(myOption->strike, myOption->expiration, myOption->optionType);
+
+            if (otherOption && otherOption->bisectionImpliedVol > 0)
+            {
+                myOption->calculate_bs_price(spotPrice, interestRate, otherOption->bisectionImpliedVol);
+            }
+
+            // Move forward only the iterator for `this` Ticker
+            i++;
+        }
+    }
+}
+
 void Ticker::write_to_csv(const std::string &filename) const
 {
     std::ofstream file(filename);
@@ -73,7 +113,7 @@ void Ticker::write_to_csv(const std::string &filename) const
     // **Write CSV Header**
     file << "Ticker,Expiration,TimeToMaturity,Strike,OptionType,LastPrice,"
          << "Bid,Ask,Volume,OpenInterest,ImpliedVolatility,BisectionIV,NewtonIV,"
-         << "Delta_bs,Gamma_bs,Vega_bs,Delta_fd,Gamma_fd,Vega_fd,Parity_price,InTheMoney\n";
+         << "Delta_bs,Gamma_bs,Vega_bs,Delta_fd,Gamma_fd,Vega_fd,Parity_price,Bs_price,InTheMoney\n";
 
     // **Write Option Data**
     for (const auto &option : options)
@@ -98,6 +138,7 @@ void Ticker::write_to_csv(const std::string &filename) const
              << option->gamma_fd << ","
              << option->vega_fd << ","
              << option->parity_price << ","
+             << option->bs_price << ","
              << (option->inTheMoney ? "True" : "False") << "\n";
     }
 

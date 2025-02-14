@@ -33,6 +33,7 @@ struct OptionData
     double vega_fd;
 
     double parity_price;
+    double bs_price;
 
     // Constructor for initialization
     OptionData(const std::string &exp, double ttm, double strk, const std::string &type,
@@ -44,6 +45,7 @@ struct OptionData
 
     // Calculate IV using both Bisection and Newton methods
     void calculate_iv_and_greeks(double spotPrice, double interestRate);
+    void calculate_bs_price(double spot, double rate, double vol);
 };
 
 #endif

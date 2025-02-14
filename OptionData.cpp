@@ -44,3 +44,11 @@ void OptionData::calculate_iv_and_greeks(double spotPrice, double interestRate)
     gamma_fd = gamma_finite_difference(bs, bisectionImpliedVol);
     vega_fd = vega_finite_difference(bs, bisectionImpliedVol);
 }
+
+void OptionData::calculate_bs_price(double spot, double rate, double vol)
+{
+    BlackScholes bs_model(strike, spot, timeToMaturity, rate,
+                          (optionType == "Call" ? PayoffType::Call : PayoffType::Put), 0.02);
+
+    bs_price = bs_model(vol);
+}

@@ -29,6 +29,7 @@ public:
 
     void calculate_implied_vols_and_greeks();
     void calculate_put_call_parity();
+    void calculate_bs_price_from_other_ticker(const std::unique_ptr<Ticker> &otherTicker);
 
     double getSpotPrice() const { return spotPrice; };
     double getInterestRate() const { return interestRate; };

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void read_csv_into_ticker_object(std::string fileName, std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers)
+void read_csv_into_ticker_object(std::string fileName, std::unordered_map<std::string, std::unique_ptr<Ticker>> &tickers)
 {
     ifstream ifile(fileName, ios::in);
     if (!ifile.is_open())
@@ -106,9 +106,13 @@ int main()
         tickerObj->calculate_put_call_parity();
         string outputFileName = ticker + "_outputData1.csv";
         tickerObj->write_to_csv(outputFileName);
+
+        tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
+        outputFileName = ticker + "_outputData2.csv";
+        tickers_data2[ticker]->write_to_csv(outputFileName);
     }
 
-    // trapezoidal rule
+    // part iii
     auto real_valued_func = [](double x)
     {
         if (x == 0.0)
@@ -132,6 +136,19 @@ int main()
     cout << "simpsons rule integral approx: " << simpsons_rule(real_valued_func, a_minus, a_plus, N) << endl;
     cout << "truncation error of simpsons rule: " << truncation_error("simpsons", real_valued_func, a_minus, a_plus, N) << endl;
     cout << "convergence test took " << convergence_iterations("simpsons", real_valued_func, a_minus, a_plus) << " iterations" << endl;
+
+    // part 4
+    auto f1 = [](double x, double y)
+    {
+        return x * y;
+    };
+
+    auto f2 = [](double x, double y)
+    {
+        return exp(x + y);
+    };
+
+    // call trapezoidal function for two integrals
 
     return 0;
 }
