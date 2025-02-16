@@ -18,6 +18,8 @@ double bisection_method(BlackScholes &bs, double market_price, bool debug = fals
 
 double newton_method(BlackScholes &bs, double market_price);
 
+double secant_method(BlackScholes &bs, double market_price);
+
 double delta_finite_difference(BlackScholes &bs, double vol);
 
 double gamma_finite_difference(BlackScholes &bs, double vol);

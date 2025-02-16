@@ -76,7 +76,7 @@ double bisection_method(BlackScholes &bs, double market_price, bool debug)
 
 double newton_method(BlackScholes &bs, double market_price)
 {
-    double sigma = 0.2; // Initial guess
+    double sigma = 2; // Initial guess
     double epsilon = 1e-06;
     int max_iter = 100;
 
@@ -94,6 +94,41 @@ double newton_method(BlackScholes &bs, double market_price)
     }
 
     return sigma; // Return the last computed sigma
+}
+
+double secant_method(BlackScholes &bs, double market_price)
+{
+    double sigma0 = 2; // Initial guess 1
+    double sigma1 = 3; // Initial guess 2
+    double epsilon = 1e-06;
+    int max_iter = 100;
+
+    for (int i = 0; i < max_iter; ++i)
+    {
+        double f_sigma0 = bs(sigma0) - market_price;
+        double f_sigma1 = bs(sigma1) - market_price;
+
+        if (std::abs(f_sigma1) < epsilon)
+        {
+            return sigma1; // Converged
+        }
+
+        // Check for division by zero
+        double denominator = (f_sigma1 - f_sigma0);
+        if (std::abs(denominator) < epsilon)
+        {
+            return sigma1;
+        }
+
+        // Secant update formula
+        double sigma2 = sigma1 - f_sigma1 * (sigma1 - sigma0) / denominator;
+
+        // Update variables for next iteration
+        sigma0 = sigma1;
+        sigma1 = sigma2;
+    }
+
+    return sigma1; // Return the last computed sigma
 }
 
 double delta_finite_difference(BlackScholes &bs, double vol)

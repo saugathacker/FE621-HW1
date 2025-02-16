@@ -80,27 +80,27 @@ void read_csv_into_ticker_object(std::string fileName, std::unordered_map<std::s
 int main()
 {
 
-    // std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data1; // Map to store unique tickers
+    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data1; // Map to store unique tickers
 
-    // std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2;
+    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2;
 
-    // read_csv_into_ticker_object("options_data1.csv", tickers_data1);
+    read_csv_into_ticker_object("options_data1.csv", tickers_data1);
 
-    // read_csv_into_ticker_object("options_data2.csv", tickers_data2);
+    read_csv_into_ticker_object("options_data2.csv", tickers_data2);
 
-    // // calculate implied vol, greeks, put-call parity for data1 and writing it into csv file
-    // for (const auto &[ticker, tickerObj] : tickers_data1)
-    // {
-    //     cout << "ticker name: " << tickerObj->getTickerName() << " no of options: " << tickerObj->getOptionsSize() << endl;
-    //     tickerObj->calculate_implied_vols_and_greeks();
-    //     tickerObj->calculate_put_call_parity();
-    //     string outputFileName = ticker + "_outputData1.csv";
-    //     tickerObj->write_to_csv(outputFileName);
+    // calculate implied vol, greeks, put-call parity for data1 and writing it into csv file
+    for (const auto &[ticker, tickerObj] : tickers_data1)
+    {
+        cout << "ticker name: " << tickerObj->getTickerName() << " no of options: " << tickerObj->getOptionsSize() << endl;
+        tickerObj->calculate_implied_vols_and_greeks();
+        tickerObj->calculate_put_call_parity();
+        string outputFileName = ticker + "_outputData1.csv";
+        tickerObj->write_to_csv(outputFileName);
 
-    //     tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
-    //     outputFileName = ticker + "_outputData2.csv";
-    //     tickers_data2[ticker]->write_to_csv(outputFileName);
-    // }
+        // tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
+        // outputFileName = ticker + "_outputData2.csv";
+        // tickers_data2[ticker]->write_to_csv(outputFileName);
+    }
 
     // // part iii
     // auto real_valued_func = [](double x)

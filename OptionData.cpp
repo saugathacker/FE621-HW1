@@ -34,6 +34,12 @@ void OptionData::calculate_iv_and_greeks(double spotPrice, double interestRate)
     auto end_newton = std::chrono::high_resolution_clock::now();
     newtonTime = std::chrono::duration<double, std::milli>(end_newton - start_newton).count();
 
+    // **Measure time for Secant Method**
+    auto start_secant = std::chrono::high_resolution_clock::now();
+    secantImpliedVol = secant_method(bs, market_price);
+    auto end_secant = std::chrono::high_resolution_clock::now();
+    secantTime = std::chrono::duration<double, std::milli>(end_secant - start_secant).count();
+
     // calculating greeks using BlackScholes derivation
     delta_bs = bs.get_delta(bisectionImpliedVol);
     gamma_bs = bs.get_gamma(bisectionImpliedVol);

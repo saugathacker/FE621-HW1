@@ -112,8 +112,8 @@ void Ticker::write_to_csv(const std::string &filename) const
 
     // **Write CSV Header**
     file << "Ticker,Expiration,TimeToMaturity,Strike,OptionType,LastPrice,"
-         << "Bid,Ask,Volume,OpenInterest,ImpliedVolatility,BisectionIV,NewtonIV,"
-         << "Delta_bs,Gamma_bs,Vega_bs,Delta_fd,Gamma_fd,Vega_fd,Parity_price,Bs_price,InTheMoney\n";
+         << "Bid,Ask,Volume,OpenInterest,ImpliedVolatility,BisectionIV,BisectionTime,NewtonIV,NewtonTime,"
+         << "SecantIV,SecantTime,Delta_bs,Gamma_bs,Vega_bs,Delta_fd,Gamma_fd,Vega_fd,Parity_price,Bs_price,InTheMoney\n";
 
     // **Write Option Data**
     for (const auto &option : options)
@@ -130,7 +130,11 @@ void Ticker::write_to_csv(const std::string &filename) const
              << option->openInterest << ","
              << option->impliedVolatility << ","
              << option->bisectionImpliedVol << ","
+             << option->bisectionTime << ","
              << option->newtonImpliedVol << ","
+             << option->newtonTime << ","
+             << option->secantImpliedVol << ","
+             << option->secantTime << ","
              << option->delta_bs << ","
              << option->gamma_bs << ","
              << option->vega_bs << ","
