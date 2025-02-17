@@ -7,30 +7,30 @@
 Ticker::Ticker(const std::string &name, double spot, double rate)
     : tickerName(name), spotPrice(spot), interestRate(rate) {}
 
-// Add new option data to the existing Ticker object
+// add new option data to the existing Ticker object
 void Ticker::addOptionData(std::unique_ptr<OptionData> option)
 {
     options.push_back(std::move(option));
 }
 
-// Find an option based on strike, expiration, and type
+// find an option based on strike, expiration, and type
 OptionData *Ticker::findOption(double strike, const std::string &expiration, const std::string &optionType) const
 {
     for (const auto &option : options)
     {
         if (option->strike == strike && option->expiration == expiration && option->optionType == optionType)
         {
-            return option.get(); // Return raw pointer (safe since unique_ptr manages memory)
+            return option.get(); // return raw pointer (safe since unique_ptr manages memory)
         }
     }
-    return nullptr; // Return nullptr if no matching option is found
+    return nullptr; // return nullptr if no matching option is found
 }
 
 void Ticker::calculate_implied_vols_and_greeks()
 {
     for (auto &option : options)
     {
-        option->calculate_iv_and_greeks(spotPrice, interestRate); // Each option calculates its IV
+        option->calculate_iv_and_greeks(spotPrice, interestRate); // each option calculates its IV
     }
 }
 
@@ -38,22 +38,24 @@ void Ticker::calculate_put_call_parity()
 {
     for (const auto &option : options)
     {
-        // Find corresponding Call if current option is a Put
+        // find corresponding Call if current option is a Put
         if (option->optionType == "Put")
         {
             OptionData *callOption = findOption(option->strike, option->expiration, "Call");
             if (callOption)
             {
+                // calculate the put price by using C - S0 + K * e^-rT
                 double discount_factor = exp(-interestRate * option->timeToMaturity);
                 option->parity_price = callOption->lastPrice - spotPrice + (option->strike * discount_factor);
             }
         }
-        // Find corresponding Put if current option is a Call
+        // find corresponding Put if current option is a Call
         else if (option->optionType == "Call")
         {
             OptionData *putOption = findOption(option->strike, option->expiration, "Put");
             if (putOption)
             {
+                // calculate the call price by using P + S0 - K * e^-rT
                 double discount_factor = exp(-interestRate * option->timeToMaturity);
                 option->parity_price = putOption->lastPrice + spotPrice - (option->strike * discount_factor);
             }
@@ -61,6 +63,7 @@ void Ticker::calculate_put_call_parity()
     }
 }
 
+// Implementation of calculating the Black Scholes price using the other Ticker's calculated Implied Volatility
 void Ticker::calculate_bs_price_from_other_ticker(const std::unique_ptr<Ticker> &tickerData1)
 {
     size_t i = 0, j = 0;
@@ -101,6 +104,7 @@ void Ticker::calculate_bs_price_from_other_ticker(const std::unique_ptr<Ticker> 
     }
 }
 
+// implentaion of write to csv all the option data (observed and calculated) of this Ticker
 void Ticker::write_to_csv(const std::string &filename) const
 {
     std::ofstream file(filename);

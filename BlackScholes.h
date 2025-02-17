@@ -4,12 +4,14 @@
 #include <cmath>
 #include <iostream>
 
+// enmum class to classify the option type
 enum class PayoffType
 {
     Call = 1,
     Put = -1
 };
 
+// Blackscholes class
 class BlackScholes
 {
 public:
@@ -27,6 +29,8 @@ public:
     PayoffType get_payoff_type() const { return payoff_type_; }
 
 private:
+    // member variables spot price, strike price, time to maturity,
+    // interest rate, dividend yield, payoff type
     double spot_, strike_, time_to_maturity_;
     double interest_rate_, dividend_yield_;
     PayoffType payoff_type_;

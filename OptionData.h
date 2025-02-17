@@ -5,8 +5,10 @@
 #include "util.h"
 #include <chrono>
 
+// struct to hold all the information of the option chain and the calculated IVs and Greeks
 struct OptionData
 {
+  // information from the downloaded data
   std::string expiration;
   double timeToMaturity;
   double strike;
@@ -19,13 +21,15 @@ struct OptionData
   double impliedVolatility;
   bool inTheMoney;
 
+  // calculated Implied Vol
   double bisectionImpliedVol;
   double newtonImpliedVol;
   double secantImpliedVol;
-  double bisectionTime; // Time taken for Bisection
+  double bisectionTime;
   double newtonTime;
   double secantTime;
 
+  // calculated greeks using diff approach
   double delta_bs;
   double gamma_bs;
   double vega_bs;
@@ -34,6 +38,7 @@ struct OptionData
   double gamma_fd;
   double vega_fd;
 
+  // calculated parity and bs price
   double parity_price;
   double bs_price;
 
@@ -45,7 +50,6 @@ struct OptionData
         impliedVolatility(iv), inTheMoney(itm), bisectionImpliedVol(0), newtonImpliedVol(0), bisectionTime(0), newtonTime(0),
         delta_bs(0), gamma_bs(0), vega_bs(0), delta_fd(0), gamma_fd(0), vega_fd(0) {}
 
-  // Calculate IV using both Bisection and Newton methods
   void calculate_iv_and_greeks(double spotPrice, double interestRate);
   void calculate_bs_price(double spot, double rate, double vol);
 };

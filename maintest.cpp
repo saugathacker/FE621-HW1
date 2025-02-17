@@ -82,6 +82,7 @@ void test_norm_pdf()
 int main()
 {
 
+    // testing the implemntation of norm_cdf and norm_pdf
     test_norm_cdf();
     test_norm_pdf();
 

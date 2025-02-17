@@ -82,7 +82,7 @@ int main()
 
     std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data1; // Map to store unique tickers
 
-    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2;
+    std::unordered_map<std::string, std::unique_ptr<Ticker>> tickers_data2; // Another map to store Data2
 
     read_csv_into_ticker_object("options_data1.csv", tickers_data1);
 
@@ -97,37 +97,43 @@ int main()
         string outputFileName = ticker + "_outputData1.csv";
         tickerObj->write_to_csv(outputFileName);
 
-        // tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
-        // outputFileName = ticker + "_outputData2.csv";
-        // tickers_data2[ticker]->write_to_csv(outputFileName);
+        // for each ticker calculate the option price using calculated implied volatitlity from previous day
+        tickers_data2[ticker]->calculate_bs_price_from_other_ticker(tickerObj);
+        outputFileName = ticker + "_outputData2.csv";
+        tickers_data2[ticker]->write_to_csv(outputFileName);
     }
 
-    // // part iii
-    // auto real_valued_func = [](double x)
-    // {
-    //     if (x == 0.0)
-    //     {
-    //         return 1.0;
-    //     }
-    //     else
-    //     {
-    //         return (sin(x) / x);
-    //     }
-    // };
+    // part iii numerical integration using Trapezoidal and Simpsons Rule
 
-    // // bounds for large interval
-    // double a_plus = pow(10, 6);
-    // double a_minus = -a_plus;
-    // int N = 1000000;
+    // defining the real valued function presetned in the question
+    auto real_valued_func = [](double x)
+    {
+        if (x == 0.0)
+        {
+            return 1.0;
+        }
+        else
+        {
+            return (sin(x) / x);
+        }
+    };
 
-    // cout << "trapezoidal rule integral approx: " << trapezoidal_rule(real_valued_func, a_minus, a_plus, N) << endl;
-    // cout << "truncation error of trapezoidal rule: " << truncation_error("trapezoidal", real_valued_func, a_minus, a_plus, N) << endl;
-    // cout << "convergence test took " << convergence_iterations("trapezoidal", real_valued_func, a_minus, a_plus) << " iterations" << endl;
-    // cout << "simpsons rule integral approx: " << simpsons_rule(real_valued_func, a_minus, a_plus, N) << endl;
-    // cout << "truncation error of simpsons rule: " << truncation_error("simpsons", real_valued_func, a_minus, a_plus, N) << endl;
-    // cout << "convergence test took " << convergence_iterations("simpsons", real_valued_func, a_minus, a_plus) << " iterations" << endl;
+    // bounds for large interval
+    double a_plus = pow(10, 6);
+    double a_minus = -a_plus;
+    // taking large step size
+    int N = 1000000;
 
-    // part 4
+    // diplaying the result, truncation error and convergence test of both Trapezpoidal and Simpson's Rule
+    cout << "trapezoidal rule integral approx: " << trapezoidal_rule(real_valued_func, a_minus, a_plus, N) << endl;
+    cout << "truncation error of trapezoidal rule: " << truncation_error("trapezoidal", real_valued_func, a_minus, a_plus, N) << endl;
+    cout << "convergence test took " << convergence_iterations("trapezoidal", real_valued_func, a_minus, a_plus) << " iterations" << endl;
+    cout << "simpsons rule integral approx: " << simpsons_rule(real_valued_func, a_minus, a_plus, N) << endl;
+    cout << "truncation error of simpsons rule: " << truncation_error("simpsons", real_valued_func, a_minus, a_plus, N) << endl;
+    cout << "convergence test took " << convergence_iterations("simpsons", real_valued_func, a_minus, a_plus) << " iterations" << endl;
+
+    // part 4 double integration
+    // defining function f1 and f2 from the question
     auto f1 = [](double x, double y)
     {
         return x * y;
@@ -138,11 +144,11 @@ int main()
         return exp(x + y);
     };
 
-    // call trapezoidal function for two integrals
+    // getting the exact values
     double f1_value = 2.25;
     double f2_value = (exp(3) - 1) * (exp(1) - 1);
 
-    int dxdy_list[] = {1, 10, 50, 100, 1000}; // Correct array declaration
+    int dxdy_list[] = {1, 10, 50, 100, 1000};
 
     // Print header
     std::cout << std::setw(10) << "dxdy"
@@ -154,12 +160,13 @@ int main()
               << std::setw(20) << "F2 Error" << std::endl;
     std::cout << std::string(130, '-') << std::endl; // Print separator
 
+    // for each step size N calculating the double integral using Trapezoidal Rule
     for (auto dxdy : dxdy_list)
     {
         double f1_integral = double_trapezoidal_rule(f1, 0, 1, dxdy, 0, 3, dxdy);
         double f2_integral = double_trapezoidal_rule(f2, 0, 1, dxdy, 0, 3, dxdy);
 
-        // Print formatted results
+        // printing formatted results
         std::cout << std::setw(10) << dxdy
                   << std::setw(20) << std::fixed << std::setprecision(6) << f1_value
                   << std::setw(20) << std::fixed << std::setprecision(6) << f1_integral

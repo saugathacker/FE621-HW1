@@ -90,6 +90,7 @@ double newton_method(BlackScholes &bs, double market_price)
             return sigma;
         }
 
+        // using vega as derivative of option price with respect to volatility
         sigma -= (price - market_price) / vega;
     }
 
@@ -131,29 +132,35 @@ double secant_method(BlackScholes &bs, double market_price)
     return sigma1; // Return the last computed sigma
 }
 
+// **Finite difference method to estimate Delta**
 double delta_finite_difference(BlackScholes &bs, double vol)
 {
     double S = bs.get_spot();
 
+    // Compute price at S+h and S-h
     BlackScholes bs_plus(bs.get_strike(), S + h, bs.get_time_to_maturity(), bs.get_interest_rate(), bs.get_payoff_type(), 0.0);
     BlackScholes bs_minus(bs.get_strike(), S - h, bs.get_time_to_maturity(), bs.get_interest_rate(), bs.get_payoff_type(), 0.0);
-
+    // Approximate derivative using central difference formula
     return (bs_plus(vol) - bs_minus(vol)) / (2 * h);
 }
 
+// **Finite difference method to estimate Gamma**
 double gamma_finite_difference(BlackScholes &bs, double vol)
 {
     double S = bs.get_spot();
 
+    // Compute Delta at S+h and S-h
     BlackScholes bs_plus(bs.get_strike(), S + h, bs.get_time_to_maturity(), bs.get_interest_rate(), bs.get_payoff_type(), 0.0);
     BlackScholes bs_minus(bs.get_strike(), S - h, bs.get_time_to_maturity(), bs.get_interest_rate(), bs.get_payoff_type(), 0.0);
 
     double delta_plus = delta_finite_difference(bs_plus, vol);
     double delta_minus = delta_finite_difference(bs_minus, vol);
 
+    // Approximate second derivative using central difference formula
     return (delta_plus - delta_minus) / (2 * h);
 }
 
+// **Finite difference method to estimate Vega**
 double vega_finite_difference(BlackScholes &bs, double vol)
 {
     return (bs(vol + h) - bs(vol - h)) / (2 * h);

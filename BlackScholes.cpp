@@ -7,15 +7,17 @@ BlackScholes::BlackScholes(double strike, double spot, double time_to_maturity,
     : strike_(strike), spot_(spot), time_to_maturity_(time_to_maturity),
       interest_rate_(interest_rate), dividend_yield_(dividend_yield), payoff_type_(payoff_type) {}
 
-// Function Implementation
+// Functor Implementation which takes volatility as an input and outputs the option price
 double BlackScholes::operator()(double vol) const
 {
 
     using std::exp;
+    // getting d1 and d2 through helper function
     auto norm_args = compute_norm_args_(vol);
     double d1 = norm_args[0];
     double d2 = norm_args[1];
 
+    // calculating phi to help determine optiontype
     int phi = static_cast<int>(payoff_type_);
 
     double nD1 = norm_cdf(phi * d1);
@@ -24,6 +26,7 @@ double BlackScholes::operator()(double vol) const
     double discountFactor = exp(-interest_rate_ * time_to_maturity_);
     double dividendFactor = exp(-dividend_yield_ * time_to_maturity_);
 
+    // call option payoff when phi is 1 and put option payoff when phi is -1
     double payoff = phi * (spot_ * dividendFactor * nD1 - strike_ * discountFactor * nD2);
 
     return payoff;
@@ -33,6 +36,7 @@ double BlackScholes::operator()(double vol) const
 std::array<double, 2> BlackScholes::compute_norm_args_(double vol) const
 {
 
+    // implementing the formula for d1 and d2
     double log_term = std::log(spot_ / strike_);
 
     double drift_term = (interest_rate_ - dividend_yield_ + 0.5 * vol * vol) * time_to_maturity_;
@@ -48,6 +52,7 @@ std::array<double, 2> BlackScholes::compute_norm_args_(double vol) const
 
 double BlackScholes::get_delta(double vol) const
 {
+    // getting delta using N(d1)
     auto norm_args = compute_norm_args_(vol);
     double d1 = norm_args[0];
     double nD1 = norm_cdf(d1);
@@ -57,6 +62,7 @@ double BlackScholes::get_delta(double vol) const
 
 double BlackScholes::get_gamma(double vol) const
 {
+    // getting gamma using N'(d1) / (S0*sigma*sqrt(T))
     auto norm_args = compute_norm_args_(vol);
     double d1 = norm_args[0];
     double nD1 = norm_pdf(d1);
@@ -66,6 +72,7 @@ double BlackScholes::get_gamma(double vol) const
 
 double BlackScholes::get_vega(double vol) const
 {
+    // getting vega using N'(d1) * S0 * sqrt(T)
     auto norma_args = compute_norm_args_(vol);
     double d1 = norma_args[0];
     double nD1 = norm_pdf(d1);
@@ -73,6 +80,7 @@ double BlackScholes::get_vega(double vol) const
     return spot_ * std::sqrt(time_to_maturity_) * nD1;
 }
 
+// overloading the << operator to display the content of the object using std::cout
 std::ostream &operator<<(std::ostream &os, const BlackScholes &bs)
 {
     os << "Black-Scholes Model:\n"

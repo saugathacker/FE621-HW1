@@ -4,36 +4,37 @@
 #include <memory>
 #include "OptionData.h"
 
-// Class to store and manage options for a specific ticker
+// class to store and manage options for a specific ticker
 class Ticker
 {
 private:
-    std::string tickerName; // Stock ticker symbol
+    std::string tickerName; // stock ticker symbol
     double spotPrice;
     double interestRate;
-    std::vector<std::unique_ptr<OptionData>> options; // Unique ptr vector of OptionData
+    std::vector<std::unique_ptr<OptionData>> options; // unique ptr vector of OptionData
 
 public:
-    // Constructor
+    // constructor
     Ticker(const std::string &name, double spot, double rate);
 
-    // Add option data to the existing Ticker object
+    // add option data to the existing Ticker object
     void addOptionData(std::unique_ptr<OptionData> option);
 
-    // Getter for ticker name
+    // getter for ticker name and option chain size
     std::string getTickerName() const { return tickerName; }
     double getOptionsSize() const { return options.size(); };
+    // getter for spot price and interest rate
+    double getSpotPrice() const { return spotPrice; };
+    double getInterestRate() const { return interestRate; };
 
-    // Find and return a pointer to the OptionData that matches strike and type
+    // find and return a pointer to the OptionData that matches strike, expiration and type
     OptionData *findOption(double strike, const std::string &expiration, const std::string &optionType) const;
 
+    // functions to calculate the implied vol, greeks, parity price and bs price
     void calculate_implied_vols_and_greeks();
     void calculate_put_call_parity();
     void calculate_bs_price_from_other_ticker(const std::unique_ptr<Ticker> &otherTicker);
 
-    double getSpotPrice() const { return spotPrice; };
-    double getInterestRate() const { return interestRate; };
-
-    // **Function to write all options to a CSV file**
+    // function to write all options to a CSV file
     void write_to_csv(const std::string &filename) const;
 };
